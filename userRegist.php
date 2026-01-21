@@ -10,15 +10,21 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Recoger datos del formulario
-$username = trim($_POST['username'] ?? '');
-$email    = trim($_POST['email'] ?? '');
+$name = trim($_POST['name'] ?? '');
+$email = trim($_POST['email'] ?? '');
 $password = trim($_POST['password'] ?? '');
 
 // Validaciones mínimas
 $errores = [];
-if ($username === '') $errores[] = 'El nombre de usuario es obligatorio.';
-if ($email === '')    $errores[] = 'El correo electrónico es obligatorio.';
-if ($password === '') $errores[] = 'La contraseña es obligatoria.';
+if ($name === '')
+    $errores[] = 'El nombre es obligatorio.';
+if ($email === '') {
+    $errores[] = 'El correo electrónico es obligatorio.';
+} elseif (!preg_match('/^[\w\.-]+@[\w\.-]+\.\w{2,}$/', $email)) {
+    $errores[] = 'El correo electrónico no tiene un formato válido.';
+}
+if ($password === '')
+    $errores[] = 'La contraseña es obligatoria.';
 
 if ($errores) {
     http_response_code(422);
@@ -29,21 +35,21 @@ if ($errores) {
 // Hashear la contraseña
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-// Insertar en la tabla users
+// Insertar en la tabla User
 try {
-    $sql = "INSERT INTO users (username, email, password_hash) 
-            VALUES (:username, :email, :password_hash)";
+    $sql = "INSERT INTO User (name, email, password) 
+            VALUES (:name, :email, :password)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
-        ':username'      => $username,
-        ':email'         => $email,
-        ':password_hash' => $password_hash
+        ':name' => $name,
+        ':email' => $email,
+        ':password' => $password_hash
     ]);
 
     echo json_encode([
         'ok' => true,
         'msg' => 'Usuario registrado correctamente',
-        'username' => $username,
+        'name' => $name,
         'email' => $email
     ]);
 } catch (Throwable $e) {
@@ -51,7 +57,7 @@ try {
     http_response_code(500);
     $msg = 'Error al registrar el usuario';
     if (strpos($e->getMessage(), 'Duplicate') !== false) {
-        $msg = 'El nombre de usuario o el correo ya están en uso';
+        $msg = 'El correo ya está en uso';
     }
     echo json_encode(['ok' => false, 'msg' => $msg, 'error' => $e->getMessage()]);
 }

@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $name = trim($_POST['name'] ?? '');
 $email = trim($_POST['email'] ?? '');
 $password = trim($_POST['password'] ?? '');
-
+$confirm_password = trim($_POST['confirm_password'] ?? '');
 // Validaciones mínimas
 $errores = [];
 if ($name === '')
@@ -25,7 +25,10 @@ if ($email === '') {
 }
 if ($password === '')
     $errores[] = 'La contraseña es obligatoria.';
-
+if ($confirm_password === '')
+    $errores[] = 'La confirmación de contraseña es obligatoria.';
+if ($password !== $confirm_password)
+    $errores[] = 'Las contraseñas no coinciden.';
 if ($errores) {
     http_response_code(422);
     echo json_encode(['ok' => false, 'errores' => $errores]);

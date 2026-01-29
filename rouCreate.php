@@ -51,13 +51,22 @@ try {
 
     $routineId = $pdo->lastInsertId();
 
+    // Asignar automáticamente la rutina al usuario que la creó (desactivada por defecto)
+    $stmt = $pdo->prepare("INSERT INTO user_routine (user_id, routine_id, active) VALUES (:user_id, :routine_id, 0)");
+    $stmt->execute([
+        ':user_id' => $userId,
+        ':routine_id' => $routineId
+    ]);
+
     echo json_encode([
         'ok' => true,
-        'msg' => 'Rutina creada correctamente',
+        'msg' => 'Rutina creada y asignada correctamente',
         'routine' => [
             'id' => $routineId,
             'name' => $name,
-            'id_owner' => $userId
+            'id_owner' => $userId,
+            'assigned' => true,
+            'active' => 0
         ]
     ]);
 

@@ -26,10 +26,7 @@ if ($dayId <= 0) {
 if ($name === '') {
     $errores[] = 'El nombre del día es obligatorio';
 }
-if ($dayOfWeek === '') {
-    $errores[] = 'El día de la semana es obligatorio';
-}
-if (!in_array($dayOfWeek, ['L', 'M', 'X', 'J', 'V', 'S', 'D'])) {
+if ($dayOfWeek !== '' && !in_array($dayOfWeek, ['L', 'M', 'X', 'J', 'V', 'S', 'D'])) {
     $errores[] = 'El día de la semana debe ser: L, M, X, J, V, S o D';
 }
 
